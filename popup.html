@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Masquerade Spoofer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:transparent}
+body{
+  width:430px;max-height:580px;overflow:hidden;
+  font:12.5px/1.5 -apple-system,'Segoe UI',system-ui,sans-serif;
+  color:#2C2420;background:transparent;
+}
+
+/* ── Custom window frame ── */
+.win{
+  background:#FAF6F1;
+  overflow:hidden;display:flex;flex-direction:column;
+  max-height:578px;
+}
+
+/* ── Title bar ── */
+.titlebar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;background:#2C2420;
+  cursor:default;user-select:none;
+  border-bottom:2px solid #C2694F;
+}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-logo{width:22px;height:22px;border-radius:4px;object-fit:cover}
+.tb-name{font:700 13.5px/1 'Source Serif 4',Georgia,serif;color:#EDE4DA;letter-spacing:-.2px}
+.tb-ver{font-size:9px;color:#8B7560;font-weight:600;margin-left:2px}
+.tb-right{display:flex;align-items:center;gap:9px}
+.tb-status{font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:10px}
+.tb-status.on{background:rgba(194,105,79,.2);color:#E8936E}
+.tb-status.off{background:rgba(139,117,96,.2);color:#8B7560}
+.sw{position:relative;width:34px;height:18px;cursor:pointer}
+.sw input{display:none}
+.sw i{position:absolute;inset:0;background:#5A4A40;border-radius:9px;transition:.15s}
+.sw i::after{content:'';position:absolute;top:2.5px;left:2.5px;width:13px;height:13px;background:#FAF6F1;border-radius:50%;transition:.15s}
+.sw input:checked+i{background:#C2694F}
+.sw input:checked+i::after{transform:translateX(16px)}
+
+/* ── Status strip ── */
+.status-strip{
+  padding:5px 14px;font-size:10px;font-weight:600;
+  display:flex;align-items:center;gap:6px;
+  background:#F0E9E0;border-bottom:1px solid #E8DDD3;
+  color:#8B7560;
+}
+.status-strip.live{color:#7C5A3C}
+.sdot{width:6px;height:6px;border-radius:50%;background:#C4AA96;flex-shrink:0}
+.live .sdot{background:#C2694F;box-shadow:0 0 4px rgba(194,105,79,.4)}
+.status-strip .verify{
+  margin-left:auto;font-size:9.5px;color:#C2694F;cursor:pointer;
+  border:none;background:none;font-family:inherit;font-weight:700;padding:0;
+}
+.status-strip .verify:hover{text-decoration:underline}
+
+/* ── Scrollable body ── */
+.scroll{overflow-y:auto;flex:1;max-height:450px}
+.scroll::-webkit-scrollbar{width:5px}
+.scroll::-webkit-scrollbar-thumb{background:#D4C4B8;border-radius:3px}
+
+/* ── Profile bar ── */
+.prof{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 14px;background:#F5EDE5;border-bottom:1px solid #E8DDD3;font-size:11px;
+}
+.prof select{flex:1;font-size:11px;padding:3px 6px;border:1px solid #D4C4B8;border-radius:4px;background:#fff;font-family:inherit;color:#2C2420}
+.prof button{
+  font-size:10px;font-weight:600;padding:3px 7px;
+  border:1px solid #D4C4B8;border-radius:4px;background:#fff;color:#8B7560;
+  cursor:pointer;font-family:inherit;transition:.12s;
+}
+.prof button:hover{border-color:#C2694F;color:#C2694F}
+.prof .del:hover{border-color:#B54A3A;color:#B54A3A}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:#fff;border-bottom:1px solid #E8DDD3}
+.tabs button{
+  flex:1;padding:7px 0;font-size:10px;font-weight:700;
+  border:none;background:none;color:#C4AA96;cursor:pointer;
+  border-bottom:2.5px solid transparent;font-family:'Source Serif 4',Georgia,serif;
+  text-transform:uppercase;letter-spacing:1px;transition:.12s;
+}
+.tabs button:hover{color:#7C5A3C}
+.tabs button.on{color:#2C2420;border-bottom-color:#C2694F}
+.pane{display:none}.pane.on{display:block}
+
+/* ── Sections ── */
+.sec{padding:10px 14px;border-bottom:1px solid #E8DDD3}
+.sec:last-child{border-bottom:none}
+.sec-h{
+  font:700 10px/1 'Source Serif 4',Georgia,serif;
+  text-transform:uppercase;letter-spacing:.8px;color:#B5A090;
+  margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.sec-h .n{font-size:9px;background:#EDE4DA;padding:1px 6px;border-radius:3px;color:#8B7560;font-family:-apple-system,sans-serif}
+
+/* ── Collapsible identity ── */
+.collapse-sec{
+  border-bottom:1px solid #3A302A;
+  background:#2C2420;overflow:hidden;
+}
+.collapse-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;cursor:pointer;user-select:none;
+}
+.collapse-head .ch-left{display:flex;align-items:center;gap:7px}
+.collapse-head .ch-label{font:600 10.5px/1 'Source Serif 4',Georgia,serif;color:#C2694F;text-transform:uppercase;letter-spacing:.6px}
+.collapse-head .ch-desc{font-size:9.5px;color:#8B7560}
+.collapse-head .ch-arrow{
+  color:#8B7560;font-size:11px;transition:transform .2s;font-weight:700;
+}
+.collapse-head:hover .ch-label{color:#E8936E}
+.collapse-body{
+  max-height:0;overflow:hidden;transition:max-height .25s ease;
+}
+.collapse-body.open{max-height:600px}
+.collapse-body-inner{padding:0 14px 10px}
+.identity-desc{font-size:9.5px;color:#8B7560;margin-bottom:8px;line-height:1.4}
+.identity-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.id-btn{
+  padding:6px 8px;border:1px solid #5A4A40;border-radius:5px;
+  background:#3A302A;color:#EDE4DA;font-size:10.5px;font-weight:600;
+  cursor:pointer;font-family:inherit;text-align:left;transition:.12s;
+  display:flex;flex-direction:column;gap:1px;
+}
+.id-btn:hover{border-color:#C2694F;background:#4A3A32}
+.id-btn .id-sub{font-size:9px;font-weight:400;color:#8B7560;font-family:'SF Mono','Consolas',monospace}
+.id-btn.wide{grid-column:span 2}
+
+/* ── Fields ── */
+.f{margin-bottom:7px}.f:last-child{margin-bottom:0}
+.f-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.f-top label{font-size:11px;font-weight:600;color:#5A4A40}
+.f-top .act{display:flex;gap:5px}
+.f-top .act button{font-size:9.5px;color:#C2694F;cursor:pointer;border:none;background:none;font-family:inherit;font-weight:700;padding:0}
+.f-top .act button:hover{text-decoration:underline}
+input[type="text"],select{
+  width:100%;padding:6px 9px;
+  font:11.5px 'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
+  border:1px solid #D4C4B8;border-radius:4px;background:#fff;color:#2C2420;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+input[type="text"]:focus,select:focus{border-color:#C2694F;box-shadow:0 0 0 2.5px rgba(194,105,79,.12)}
+input::placeholder{color:#C4AA96}
+
+/* ── Rows ── */
+.row{display:flex;gap:5px;align-items:center;margin-bottom:5px}
+.row input{flex:1}
+.rdel{
+  width:24px;height:24px;border:1px solid #D4C4B8;border-radius:4px;
+  background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#C4AA96;font-size:14px;flex-shrink:0;line-height:1;transition:.12s;
+}
+.rdel:hover{border-color:#B54A3A;color:#B54A3A;background:#FDF5F3}
+.addbtn{
+  font-size:10.5px;font-weight:600;color:#C2694F;
+  border:1px dashed #D4A48A;background:#FDF5F3;border-radius:4px;
+  padding:4px 10px;cursor:pointer;font-family:inherit;transition:.12s;
+}
+.addbtn:hover{background:#F9E8E0;border-color:#C2694F}
+
+/* ── Filter mode ── */
+.fmode{display:flex;border:1px solid #D4C4B8;border-radius:4px;overflow:hidden;margin-bottom:8px}
+.fmode button{
+  flex:1;padding:5px 0;font-size:10.5px;font-weight:600;
+  border:none;background:#fff;color:#B5A090;cursor:pointer;font-family:inherit;transition:.12s;
+}
+.fmode button:not(:last-child){border-right:1px solid #D4C4B8}
+.fmode button.on{background:#C2694F;color:#fff}
+
+/* ── Active chips ── */
+.hdr-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#fff;border:1px solid #E8DDD3;padding:4px 9px;
+  border-radius:4px;font-size:10.5px;margin:0 4px 5px 0;
+}
+.hdr-chip b{color:#C2694F;font-weight:700}
+.hdr-chip span{color:#8B7560;font-family:'SF Mono','Consolas',monospace;font-size:9.5px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty-msg{color:#C4AA96;font-size:11.5px;text-align:center;padding:20px 0;font-style:italic}
+
+/* ── Client hints ── */
+.hint-info{font-size:10px;color:#B5A090;margin-bottom:8px;line-height:1.45}
+.strip-toggle{display:flex;flex-wrap:wrap;align-items:center;gap:6px;cursor:pointer;font-size:11px}
+.strip-toggle input{width:15px;height:15px;accent-color:#C2694F;cursor:pointer}
+.strip-toggle b{font-weight:700;color:#2C2420}
+.strip-sub{display:block;width:100%;font-size:10px;color:#B5A090;margin-left:21px}
+#hintsFields.disabled{opacity:.3;pointer-events:none}
+
+/* ── Consistency checker ── */
+.check-card{margin-top:8px;padding:8px 10px;border-radius:5px;font-size:10.5px;line-height:1.5}
+.check-card.pass{background:#EDF7ED;border:1px solid #B8DCBA;color:#2D6A30}
+.check-card.warn{background:#FFF8E6;border:1px solid #F0D68A;color:#8A6D00}
+.check-card.fail{background:#FDF0EC;border:1px solid #E0A89C;color:#943030}
+.check-card b{font-weight:700}
+.check-score{
+  display:flex;align-items:center;gap:10px;margin-bottom:8px;
+  padding:10px;border-radius:5px;background:#2C2420;
+}
+.score-ring{width:42px;height:42px;flex-shrink:0}
+.score-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.score-ring .bg{stroke:#5A4A40}
+.score-ring .fg{transition:stroke-dashoffset .5s}
+.score-label{color:#EDE4DA}
+.score-label .num{font:700 20px/1 'Source Serif 4',Georgia,serif}
+.score-label .txt{font-size:10px;color:#8B7560}
+
+/* ── Modal ── */
+.mbg{display:none;position:fixed;inset:0;background:rgba(44,36,32,.4);z-index:100;justify-content:center;align-items:flex-start;padding-top:28px}
+.mbg.on{display:flex}
+.mdl{width:400px;max-height:430px;background:#FAF6F1;border-radius:8px;box-shadow:0 12px 40px rgba(44,36,32,.25);display:flex;flex-direction:column;overflow:hidden;border:1px solid #D4C4B8}
+.mdl-top{padding:9px 12px;border-bottom:1px solid #E8DDD3;display:flex;align-items:center;gap:7px;background:#F5EDE5}
+.mdl-top input{flex:1;border:1px solid #D4C4B8;border-radius:4px;padding:6px 9px;font-size:12px;outline:none;font-family:inherit;background:#fff}
+.mdl-top input:focus{border-color:#C2694F}
+.mdl-top .cnt{font-size:10px;color:#B5A090;font-weight:600;white-space:nowrap}
+.mdl-top button{border:none;background:none;font-size:16px;cursor:pointer;color:#B5A090;padding:0 3px;line-height:1}
+.mdl-top button:hover{color:#2C2420}
+.mdl-body{overflow-y:auto;flex:1}
+.mdl-cat{
+  font:700 9.5px/1 'Source Serif 4',Georgia,serif;
+  text-transform:uppercase;letter-spacing:.7px;color:#C2694F;
+  padding:8px 12px 3px;background:#F5EDE5;position:sticky;top:0;z-index:1;
+}
+.mdl-it{padding:5px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid #F0E9E0;transition:.08s}
+.mdl-it:hover{background:#C2694F;color:#fff}
+.mdl-it .v{font:9.5px 'SF Mono','Consolas',monospace;color:#B5A090;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:365px;display:block}
+.mdl-it:hover .v{color:rgba(255,255,255,.5)}
+.mdl-none{padding:20px;text-align:center;color:#C4AA96;font-size:11px;font-style:italic}
+
+/* ── Footer ── */
+.foot{
+  padding:8px 14px;display:flex;gap:6px;
+  border-top:1px solid #E8DDD3;background:#F5EDE5;
+}
+.btn{flex:1;padding:8px 0;border-radius:4px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:.12s}
+.btn-go{background:#C2694F;color:#fff}.btn-go:hover{background:#A8573F}
+.btn-x{background:#fff;color:#8B7560;border:1px solid #D4C4B8}.btn-x:hover{border-color:#C2694F;color:#C2694F}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:52px;left:50%;transform:translateX(-50%);
+  background:#2C2420;color:#FAF6F1;padding:5px 14px;border-radius:4px;
+  font-size:10.5px;font-weight:600;opacity:0;transition:opacity .2s;
+  pointer-events:none;z-index:200;white-space:nowrap;
+}
+.toast.on{opacity:1}
+
+/* ── IO ── */
+.io .btn-x{width:100%;display:block;text-align:center;padding:7px;margin-bottom:5px}
+.dng{color:#B54A3A!important;border-color:#E0A89C!important}
+.dng:hover{border-color:#B54A3A!important}
+#impFile{display:none}
+
+/* ── Device picker grid ── */
+.dev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:4px}
+.dev-card{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:7px 4px 5px;border:1px solid #E8DDD3;border-radius:5px;
+  background:#fff;cursor:pointer;transition:.12s;
+}
+.dev-card:hover{border-color:#C2694F;background:#FDF5F3}
+.dev-card svg{width:28px;height:28px;color:#8B7560;transition:.12s}
+.dev-card:hover svg{color:#C2694F}
+.dev-card .dev-name{font-size:8px;font-weight:700;color:#5A4A40;text-align:center;line-height:1.2}
+.dev-card .dev-res{font-size:7px;color:#B5A090;font-family:'SF Mono','Consolas',monospace}
+
+/* ── Site rules ── */
+.site-rule{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 8px;margin-bottom:5px;
+  background:#fff;border:1px solid #E8DDD3;border-radius:4px;
+  font-size:11px;
+}
+.site-rule .sr-domain{font:600 11px 'SF Mono','Consolas',monospace;color:#2C2420;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.site-rule .sr-profile{font-size:10px;color:#C2694F;font-weight:600;background:#FDF5F3;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.site-add-row{display:flex;gap:5px;align-items:center;margin-top:6px}
+.site-domain-input{flex:1;font-size:11px!important}
+.site-profile-sel{width:120px;font-size:10.5px!important;font-family:inherit!important}
+</style>
+</head>
+<body>
+<div class="win">
+
+  <!-- Custom title bar -->
+  <div class="titlebar">
+    <div class="tb-left">
+      <img src="icons/icon48.png" class="tb-logo" alt="">
+      <span class="tb-name">Masquerade Spoofer</span>
+      <span class="tb-ver">v3.2</span>
+    </div>
+    <div class="tb-right">
+      <span class="tb-status off" id="tbStatus">OFF</span>
+      <label class="sw"><input type="checkbox" id="pwr" checked><i></i></label>
+    </div>
+  </div>
+
+  <!-- Status strip -->
+  <div class="status-strip" id="statusBar">
+    <div class="sdot"></div>
+    <span id="statusText">No headers spoofed</span>
+    <button class="verify" id="verifyBtn">Verify</button>
+  </div>
+
+  <!-- Profile bar -->
+  <div class="prof">
+    <select id="profSel"></select>
+    <button id="pNew">+New</button>
+    <button id="pRen">Ren</button>
+    <button id="pDup">Dup</button>
+    <button id="pDel" class="del">Del</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="on" data-t="headers">Headers</button>
+    <button data-t="domains">Domains</button>
+    <button data-t="sites">Sites</button>
+    <button data-t="active">Active</button>
+    <button data-t="more">More</button>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="scroll">
+
+    <!-- HEADERS -->
+    <div class="pane on" id="p-headers">
+
+      <!-- Collapsible identity presets -->
+      <div class="collapse-sec">
+        <div class="collapse-head" id="idToggle">
+          <div class="ch-left">
+            <span class="ch-label">Quick Identity</span>
+            <span class="ch-desc">One-click coherent spoof</span>
+          </div>
+          <span class="ch-arrow" id="idArrow">▸</span>
+        </div>
+        <div class="collapse-body" id="idBody">
+          <div class="collapse-body-inner">
+            <div class="identity-desc">Fills every header at once - UA, Client Hints, platform, language - all matching the chosen identity.</div>
+            <div class="identity-grid" id="idGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h">Standard headers</div>
+        <div class="f">
+          <div class="f-top">
+            <label>User-Agent</label>
+            <div class="act">
+              <button id="detectUA">Detect mine</button>
+              <button id="pickUA">Presets</button>
+            </div>
+          </div>
+          <input type="text" id="i-ua" placeholder="Leave empty = no spoofing">
+        </div>
+        <div class="f">
+          <div class="f-top">
+            <label>Accept-Language</label>
+            <div class="act"><button id="pickAL">Presets</button></div>
+          </div>
+          <input type="text" id="i-al" placeholder="en-US,en;q=0.9">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>Referer</label></div>
+          <input type="text" id="i-ref" placeholder="https://www.google.com/">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>Origin</label></div>
+          <input type="text" id="i-ori" placeholder="https://www.google.com">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>DNT (Do Not Track)</label></div>
+          <select id="i-dnt"><option value="">- Not set -</option><option value="1">1 (Enabled)</option><option value="0">0 (Disabled)</option></select>
+        </div>
+        <div class="f">
+          <div class="f-top"><label>Accept</label></div>
+          <input type="text" id="i-accept" placeholder="text/html,application/xhtml+xml,*/*;q=0.8">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>Accept-Encoding</label></div>
+          <input type="text" id="i-ae" placeholder="gzip, deflate, br">
+        </div>
+      </div>
+
+      <!-- CLIENT HINTS -->
+      <div class="sec">
+        <div class="sec-h">Client hints <span class="n" style="background:#FDF0EC;color:#B54A3A">anti-fingerprint</span></div>
+        <div class="hint-info">These headers leak your real browser even when UA is spoofed. Set values to spoof, or use "Strip all" to remove them entirely.</div>
+        <div class="f" style="margin-bottom:8px">
+          <label class="strip-toggle">
+            <input type="checkbox" id="stripHints"> <b>Strip all Client Hints</b>
+            <span class="strip-sub">Removes all Sec-Ch-Ua-* headers from requests</span>
+          </label>
+        </div>
+        <div id="hintsFields">
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua</label></div><input type="text" id="i-scu" placeholder='"Chromium";v="130", "Not?A_Brand";v="99"'></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Mobile</label></div><select id="i-scum"><option value="">- Not set -</option><option value="?0">?0 (Desktop)</option><option value="?1">?1 (Mobile)</option></select></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Platform</label></div><input type="text" id="i-scup" placeholder='"Windows", "macOS", "Linux", "Android"'></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Platform-Version</label></div><input type="text" id="i-scupv" placeholder='"15.0.0", "14.5"'></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Full-Version-List</label></div><input type="text" id="i-scufv" placeholder='"Chromium";v="130.0.0.0"'></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Arch</label></div><input type="text" id="i-scua" placeholder='"x86", "arm"'></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Bitness</label></div><select id="i-scub"><option value="">- Not set -</option><option value='"64"'>"64"</option><option value='"32"'>"32"</option></select></div>
+          <div class="f"><div class="f-top"><label>Sec-Ch-Ua-Model</label></div><input type="text" id="i-scumod" placeholder='"Pixel 8", "SM-S926B"'></div>
+        </div>
+      </div>
+
+      <!-- SEC-FETCH -->
+      <div class="sec">
+        <div class="sec-h">Fetch metadata</div>
+        <div class="hint-info">Sec-Fetch-* headers reveal navigation context.</div>
+        <div class="f"><div class="f-top"><label>Sec-Fetch-Dest</label></div><select id="i-sfd"><option value="">- Not set -</option><option value="document">document</option><option value="empty">empty</option><option value="image">image</option><option value="script">script</option><option value="style">style</option></select></div>
+        <div class="f"><div class="f-top"><label>Sec-Fetch-Mode</label></div><select id="i-sfm"><option value="">- Not set -</option><option value="navigate">navigate</option><option value="cors">cors</option><option value="no-cors">no-cors</option><option value="same-origin">same-origin</option></select></div>
+        <div class="f"><div class="f-top"><label>Sec-Fetch-Site</label></div><select id="i-sfs"><option value="">- Not set -</option><option value="none">none</option><option value="same-origin">same-origin</option><option value="same-site">same-site</option><option value="cross-site">cross-site</option></select></div>
+      </div>
+
+      <!-- DEVICE / SCREEN HINTS -->
+      <div class="sec">
+        <div class="sec-h">Device &amp; screen <span class="n" style="background:#EDE4DA;color:#7C5A3C">hardware spoof</span></div>
+        <div class="hint-info">Pick a device to auto-fill screen size, pixel density, and memory.</div>
+        <div class="dev-grid" id="devGrid"></div>
+        <div style="margin-top:8px">
+          <div class="f">
+            <div class="f-top"><label>Viewport-Width</label></div>
+            <input type="text" id="i-vw" placeholder="1920 (desktop), 412 (phone)">
+          </div>
+          <div class="f">
+            <div class="f-top"><label>Viewport-Height</label></div>
+            <input type="text" id="i-vh" placeholder="1080 (desktop), 915 (phone)">
+          </div>
+          <div class="f">
+            <div class="f-top"><label>DPR (Device Pixel Ratio)</label></div>
+            <select id="i-dpr"><option value="">- Not set -</option><option value="1">1 (standard)</option><option value="1.5">1.5 (HD)</option><option value="2">2 (Retina/2x)</option><option value="2.625">2.625 (Pixel phones)</option><option value="3">3 (iPhone Plus/Max)</option><option value="3.5">3.5 (high-end Android)</option></select>
+          </div>
+          <div class="f">
+            <div class="f-top"><label>Device-Memory (GB)</label></div>
+            <select id="i-dm"><option value="">- Not set -</option><option value="2">2 (low-end phone)</option><option value="4">4 (mid phone/old PC)</option><option value="8">8 (flagship/laptop)</option><option value="16">16 (desktop/pro laptop)</option><option value="32">32 (workstation)</option></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- NETWORK HINTS (the clever spoof) -->
+      <div class="sec">
+        <div class="sec-h">Network profile <span class="n" style="background:#FDF0EC;color:#B54A3A">unique spoof</span></div>
+        <div class="hint-info">Network Information hints reveal your connection type and speed. A "mobile user in Brazil" with 1000 Mbps and 2ms latency is obviously fake. Match these to your claimed identity.</div>
+        <div class="f">
+          <div class="f-top"><label>ECT (Effective Connection Type)</label></div>
+          <select id="i-ect"><option value="">- Not set -</option><option value="4g">4g (broadband/LTE)</option><option value="3g">3g (moderate mobile)</option><option value="2g">2g (slow mobile)</option><option value="slow-2g">slow-2g (very poor)</option></select>
+        </div>
+        <div class="f">
+          <div class="f-top"><label>Downlink (Mbps)</label></div>
+          <input type="text" id="i-dl" placeholder="10 (4G), 1.5 (3G), 50 (fiber), 0.3 (2G)">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>RTT (Round-trip ms)</label></div>
+          <input type="text" id="i-rtt" placeholder="50 (fiber), 100 (4G), 300 (3G), 1000 (2G)">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>Save-Data</label></div>
+          <select id="i-sd"><option value="">- Not set -</option><option value="on">on (data saver enabled)</option></select>
+        </div>
+      </div>
+
+      <!-- IP / GEO SPOOFING -->
+      <div class="sec">
+        <div class="sec-h">IP origin spoofing <span class="n" style="background:#EDE4DA;color:#7C5A3C">geo-spoof</span></div>
+        <div class="hint-info">Many servers trust these headers to determine your location. Pick a country to auto-fill a realistic IP, or enter one manually.</div>
+        <div class="f">
+          <div class="f-top">
+            <label>Country</label>
+            <div class="act"><button id="randomizeIP">Randomize</button></div>
+          </div>
+          <select id="i-geo">
+            <option value="">- Pick a country -</option>
+          </select>
+        </div>
+        <div class="f">
+          <div class="f-top"><label>X-Forwarded-For</label></div>
+          <input type="text" id="i-xff" placeholder="203.0.113.42">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>X-Real-IP</label></div>
+          <input type="text" id="i-xrip" placeholder="203.0.113.42">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>CF-Connecting-IP</label></div>
+          <input type="text" id="i-cfip" placeholder="203.0.113.42">
+        </div>
+        <div class="f">
+          <div class="f-top"><label>True-Client-IP</label></div>
+          <input type="text" id="i-tcip" placeholder="203.0.113.42">
+        </div>
+        <div class="f">
+          <label class="strip-toggle">
+            <input type="checkbox" id="syncIPs" checked> <b>Sync all IP fields</b>
+            <span class="strip-sub">Setting one field copies to all others</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h">Custom headers <span class="n" id="chN">0</span></div>
+        <div id="chBox"></div>
+        <button class="addbtn" id="chAdd">+ Add header</button>
+      </div>
+    </div>
+
+    <!-- DOMAINS -->
+    <div class="pane" id="p-domains">
+      <div class="sec">
+        <div class="sec-h">Apply spoofing to</div>
+        <div class="fmode">
+          <button class="on" data-m="all">All sites</button>
+          <button data-m="only">Only listed</button>
+          <button data-m="except">All except listed</button>
+        </div>
+        <div class="sec-h">Domain list <span class="n" id="domN">0</span></div>
+        <div id="domBox"></div>
+        <button class="addbtn" id="domAdd">+ Add domain</button>
+      </div>
+    </div>
+
+    <!-- SITES - per-domain profile routing -->
+    <div class="pane" id="p-sites">
+      <div class="sec">
+        <div class="sec-h">Per-site profiles</div>
+        <div class="hint-info">Assign different spoofing profiles to different websites. The default profile applies to all other sites.</div>
+        <div id="siteRulesBox"></div>
+        <div class="site-add-row">
+          <input type="text" id="newSiteDomain" placeholder="example.com" class="site-domain-input">
+          <select id="newSiteProfile" class="site-profile-sel"></select>
+          <button class="addbtn" id="addSiteRule">+ Add</button>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-h">How it works</div>
+        <div class="hint-info">
+          Each site rule applies its own profile exclusively to matching domains. All other traffic uses your currently active profile. Rules are evaluated by domain - subdomains are included automatically.
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE -->
+    <div class="pane" id="p-active">
+      <div class="sec" id="activeBox"><div class="empty-msg">Save settings to see active rules</div></div>
+    </div>
+
+    <!-- MORE -->
+    <div class="pane" id="p-more">
+      <div class="sec io">
+        <div class="sec-h">Import / Export</div>
+        <button class="btn btn-x" id="expBtn">Export all profiles</button>
+        <button class="btn btn-x" id="impBtn">Import profiles</button>
+        <input type="file" id="impFile" accept=".json">
+      </div>
+      <div class="sec io">
+        <div class="sec-h">Danger zone</div>
+        <button class="btn btn-x dng" id="nukBtn">Reset everything</button>
+      </div>
+    </div>
+
+  </div><!-- /scroll -->
+
+  <!-- MODAL -->
+  <div class="mbg" id="mbg">
+    <div class="mdl">
+      <div class="mdl-top">
+        <input type="text" id="mSearch" placeholder="Search presets…">
+        <span class="cnt" id="mCnt">0</span>
+        <button id="mClose">✕</button>
+      </div>
+      <div class="mdl-body" id="mBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Footer -->
+  <div class="foot">
+    <button class="btn btn-x" id="revertBtn">Revert</button>
+    <button class="btn btn-go" id="saveBtn">Save & Apply</button>
+  </div>
+
+</div><!-- /win -->
+
+<script src="ua-presets.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

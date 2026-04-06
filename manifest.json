@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Masquerade Spoofer",
+  "version": "3.2.0",
+  "description": "Advanced HTTP header spoofing with 1000+ UA presets, Client Hints, network profile, IP geo-spoofing, per-site profiles, and fingerprint consistency checker. github.com/mthcht/Masquerade-Spoofer",
+  "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestFeedback", "contextMenus", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+}
