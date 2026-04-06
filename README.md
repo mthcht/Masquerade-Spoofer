@@ -151,6 +151,8 @@ Assign different spoofing profiles to different websites. Browse Google as Chrom
 4. Click **Load unpacked** and select the extension folder
 5. Pin the extension to your toolbar
 
+or install from Store: *fixme publishing in progress*
+
 ## Usage
 
 1. Click the extension icon
@@ -199,8 +201,4 @@ icons/                 - Extension icons (16/48/128px)
 
 ## Contributing
 
-Issues and pull requests welcome at [github.com/mthcht/Masquerade-Spoofer](https://github.com/mthcht/Masquerade-Spoofer).
-
-## License
-
-MIT
+Issues and pull requests welcome
