@@ -29,7 +29,6 @@ Most header spoofing extensions only change the User-Agent and call it a day. Th
 <img width="416" height="520" alt="Capture d&#39;écran 2026-04-06 232126" src="https://github.com/user-attachments/assets/a1f6a278-e364-4f54-b245-ad1d296e1c26" />
 <img width="428" height="562" alt="Capture d&#39;écran 2026-04-06 232158" src="https://github.com/user-attachments/assets/0aa6691b-bc46-4fb2-9f9a-beae8c34693e" />
 <img width="417" height="523" alt="Capture d&#39;écran 2026-04-06 232215" src="https://github.com/user-attachments/assets/090afab7-f4f6-4c19-a469-b4061563b590" />
-<img width="411" height="566" alt="Capture d&#39;écran 2026-04-06 232227" src="https://github.com/user-attachments/assets/326106fa-58d7-494c-988d-be7d0a9a4471" />
 <img width="420" height="418" alt="Capture d&#39;écran 2026-04-06 232234" src="https://github.com/user-attachments/assets/d414d62d-6b9f-48fd-b5b8-cd58c0c7d4ff" />
 <img width="419" height="564" alt="Capture d&#39;écran 2026-04-06 232245" src="https://github.com/user-attachments/assets/f7f411fd-1077-4d27-b28e-a7d472ce9462" />
 <img width="419" height="567" alt="Capture d&#39;écran 2026-04-06 232308" src="https://github.com/user-attachments/assets/41e5c4a8-6a08-4e40-9d22-31e5b31d196b" />
