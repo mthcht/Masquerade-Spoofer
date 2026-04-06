@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Masquerade Spoofer",
   "version": "1.0.0",
-  "description": "Advanced HTTP header spoofing with 1000+ UA presets, Client Hints, network profile, IP geo-spoofing, per-site profiles, and fingerprint consistency checker. github.com/mthcht/Masquerade-Spoofer",
+  "description": "Full HTTP header spoofing: 1000+ UA presets, Client Hints, network/screen/IP geo-spoofing, fingerprint consistency checker.",
   "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestFeedback", "contextMenus", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {

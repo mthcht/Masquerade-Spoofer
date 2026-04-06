@@ -612,6 +612,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#impBtn").addEventListener("click", () => $("#impFile").click());
   $("#impFile").addEventListener("change", doImport);
   $("#nukBtn").addEventListener("click", doReset);
+  $("#ghRepo").addEventListener("click", () => chrome.tabs.create({ url: "https://github.com/mthcht/Masquerade-Spoofer" }));
+  $("#ghIssue").addEventListener("click", () => chrome.tabs.create({ url: "https://github.com/mthcht/Masquerade-Spoofer/issues" }));
+  $("#ghContrib").addEventListener("click", () => chrome.tabs.create({ url: "https://github.com/mthcht/Masquerade-Spoofer/pulls" }));
 });
 
 // ── Helpers ──
