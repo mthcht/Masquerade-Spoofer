@@ -3,7 +3,7 @@
   "name": "Masquerade Spoofer",
   "version": "1.0.0",
   "description": "Full HTTP header spoofing: 1000+ UA presets, Client Hints, network/screen/IP geo-spoofing, fingerprint consistency checker.",
-  "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestFeedback", "contextMenus", "tabs"],
+  "permissions": ["storage", "declarativeNetRequest", "declarativeNetRequestFeedback", "contextMenus"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
