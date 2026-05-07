@@ -164,7 +164,7 @@ Assign different spoofing profiles to different websites. Browse Google as Chrom
 4. Click **Load unpacked** and select the extension folder
 5. Pin the extension to your toolbar
 
-or install from Store: *fixme publishing in progress*
+or install from WebStore: https://chromewebstore.google.com/detail/masquerade-spoofer/cgnpdkbbmolngpcdehdheofjhcgcaoeb 
 
 ## Usage
 
